@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Object Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <a href="{{ url_for('home') }}" class="logo">Object Detection</a>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('home') }}" class="active">Home</a></li>
+            <li><a href="{{ url_for('login') }}">Login</a></li>
+            <li><a href="{{ url_for('signup') }}">Sign in</a></li>
+        </ul>
+    </nav>
+
+    <!-- Header -->
+    <header>
+        <h1>Welcome to Object Detection</h1>
+        <p>Using Mask R-CNN to detect objects in your images.</p>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Card Layout -->
+        <div class="card">
+            <!-- Image -->
+            <img src="{{ url_for('static', filename='images/football-p-1080.png') }}" alt="Object Detection">
+
+            <!-- Card Content -->
+            <div class="card-content">
+                <h2>Detect Objects with Ease</h2>
+                <p>
+                    Leverage our state-of-the-art Mask R-CNN technology to identify objects in your images. 
+                    Sign up or log in to start detecting objects and gain insights today.
+                </p>
+                <a href="{{ url_for('signup') }}">Get Started</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div class="contact">
+        <h2>Contact Us</h2>
+        <p>
+            Have questions or need help? Feel free to reach out to us.<br>
+            Email: <a href="mailto:support@objectdetect.com">support@objectdetect.com</a><br>
+            Phone: +1 234 567 890
+        </p>
+        <p>Follow us on <a href="#">Twitter</a>, <a href="#">LinkedIn</a>, and <a href="#">GitHub</a>.</p>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Object Detect. All rights reserved.</p>
+    </footer>
+</body>
+</html>

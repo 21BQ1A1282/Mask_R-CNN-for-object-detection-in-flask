@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Object Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Object Detection</h1>
+    </header>
+
+    <nav>
+        <a href="{{ url_for('home') }}" class="logo">Object Detection</a>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li><a href="{{ url_for('signup') }}">Sign in</a></li>
+        </ul>
+    </nav>
+
+    <!-- Connected Two-Card Layout -->
+    <div class="connected-card-container">
+        <!-- Red-Themed Card -->
+        <div class="red-card">
+            <h2>Welcome Back!</h2>
+            <p>
+                Leverage our state-of-the-art Mask R-CNN technology to identify objects in your images. 
+                Sign in to continue your journey with Object Detection.
+            </p>
+        </div>
+
+        <!-- Login Card -->
+        <div class="login-card">
+            <h2>Login</h2>
+            <form id="login-form" action="{{ url_for('login') }}" method="post">
+                <input type="text" id="login-username" name="login-username" placeholder="Username" required>
+                <input type="password" id="login-password" name="login-password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+            <p>Don't have an account? <a href="{{ url_for('signup') }}">Sign in here</a>.</p>
+            {% if error %}
+                <p style="color: red;">{{ error }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Object Detect. All rights reserved.</p>
+    </footer>
+</body>
+</html>

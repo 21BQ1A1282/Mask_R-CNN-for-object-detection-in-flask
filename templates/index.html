@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Object Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+</head>
+<body>
+    <nav>
+        <a href="{{ url_for('home') }}" class="logo">Object Detection</a>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+    </nav>
+
+    <!-- Header Section -->
+    <header>
+        <div class="container">
+            <h1>What is Object Detection?</h1>
+            <p style="color: white;">Discover the power of computer vision and object detection models using Mask R-CNN.</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Introduction Section -->
+        <section>
+            <div class="card">
+                <h2>What is Object Detection?</h2>
+                <p>Object detection is a computer vision task focused on identifying the location of specific objects in visual data like images or video.</p>
+                <p>Object detection models are used across industries for a range of use cases, from autonomous vehicles to medical imaging.</p>
+            </div>
+        </section>
+
+        <!-- Upload Section -->
+         <!-- Upload Section -->
+<section hidden>
+    <div class="card">
+        <h2>Try Object Detection</h2>
+        <p>Upload an image to see object detection in action!</p>
+        <form id="upload-form" action="/object-detection/" method="post" enctype="multipart/form-data">
+            <label for="image">Select Image:</label>
+            <input type="file" id="image" name="image" accept="image/*" required><br><br>
+            <input type="submit" value="Upload and Apply Detection">
+        </form>
+        <div id="detected-image-button" style="display: none;">
+            <a href="{{ url_for('result') }}" class="button">View Detected Image</a>
+        </div>
+    </div>
+</section>
+        <section>
+            <div class="card">
+                <h2>Try Object Detection</h2>
+                <p>Upload an image to see object detection in action!</p>
+                <div class="upload-container">
+                    <form id="upload-form" action="/object-detection/" method="post" enctype="multipart/form-data">
+                        <label for="image">Select Image:</label>
+                        <input type="file" id="image" name="image" accept="image/*" required><br><br>
+                        <input type="submit" value="Upload and Apply Detection">
+                    </form>
+                    <!-- View Detected Image Button -->
+                    <div id="view-detected-button" style="display: none;">
+                        <a href="{{ url_for('result') }}" class="button">View Detected Image</a>
+                    </div>
+                    <!-- View Video Feed Button -->
+                    <div id="view-video-button">
+                        <a href="{{ url_for('video') }}" class="button">View Video Feed</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Models Section -->
+        <section>
+            <div class="card">
+                <h2>Popular Object Detection Models</h2>
+                <div class="models-grid">
+                    <div class="model-card">
+                        <h3>R-CNN</h3>
+                        <p>Region-based Convolutional Neural Networks for object detection.</p>
+                        <a href="https://arxiv.org/abs/1311.2524" class="widget-button">Learn More</a>
+                    </div>
+                    <div class="model-card">
+                        <h3>Faster R-CNN</h3>
+                        <p>An improved version of R-CNN with faster object detection.</p>
+                        <a href="https://arxiv.org/abs/1506.01497" class="widget-button">Learn More</a>
+                    </div>
+                    <div class="model-card">
+                        <h3>YOLOv5</h3>
+                        <p>Real-time object detection with state-of-the-art accuracy.</p>
+                        <a href="https://github.com/ultralytics/yolov5" class="widget-button">Learn More</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Object Detect. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.getElementById('upload-form').onsubmit = async function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const response = await fetch('/object-detection/', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+
+                const outputImage = document.getElementById('output-image');
+                outputImage.src = url;
+
+                const downloadLink = document.getElementById('download-link');
+                downloadLink.href = url;
+            } else {
+                console.error('Failed to process image');
+            }
+        };
+    </script>
+</body>
+</html>
