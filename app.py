@@ -89,9 +89,6 @@ def process_frame(frame):
     # Perform forward pass to get the detections and masks
     (boxes, masks) = net.forward(["detection_out_final", "detection_masks"])
 
-    # Debug: Print the number of detections
-    print(f"Number of detections: {boxes.shape[2]}")
-
     # Loop through all detected objects and visualize the results
     for i in range(boxes.shape[2]):
         score = boxes[0, 0, i, 2]  # Get the confidence score
@@ -100,30 +97,35 @@ def process_frame(frame):
             box = boxes[0, 0, i, 3:7] * np.array([width, height, width, height])
             (x1, y1, x2, y2) = box.astype("int")  # Get the coordinates of the bounding box
 
-            # Debug: Print detection details
-            print(f"Detection {i}: Class={classes[class_id]}, Score={score:.2f}, Box={[x1, y1, x2, y2]}")
-
-            # Draw the bounding box
-            color = [int(c) for c in colors[class_id]]
-            cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
-
-            # Display the label
-            label = f"{classes[class_id]}: {score:.2f}"
-            cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-
             # Extract and resize the mask for the object
             mask = masks[i, class_id]
             mask = cv2.resize(mask, (x2 - x1, y2 - y1), interpolation=cv2.INTER_NEAREST)
 
-            # Threshold the mask and apply it to the region of interest (ROI)
-            mask = (mask > 0.5).astype("uint8") * 255  # Threshold to create a binary mask
-            roi = frame[y1:y2, x1:x2]
-            masked_roi = cv2.bitwise_and(roi, roi, mask=mask)  # Apply the mask to the ROI
-            frame[y1:y2, x1:x2] = masked_roi  # Replace the ROI with the masked version
+            # Threshold the mask to create a binary mask
+            mask = (mask > 0.5).astype("uint8")
+
+            # Create a dark color for the mask
+            color = [int(c * 0.5) for c in colors[class_id]]  # Darken the color
+
+            # Create a colored mask overlay
+            colored_mask = np.zeros_like(frame[y1:y2, x1:x2], dtype=np.uint8)
+            colored_mask[mask > 0] = color  # Apply the dark color to the mask region
+
+            # Blend the colored mask with the original frame
+            alpha = 0.5  # Transparency factor (0 = fully transparent, 1 = fully opaque)
+            frame[y1:y2, x1:x2] = cv2.addWeighted(colored_mask, alpha, frame[y1:y2, x1:x2], 1 - alpha, 0)
+
+            # Draw the bounding box
+            cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+
+            # Display the label with a background for better visibility
+            label = f"{classes[class_id]}: {score:.2f}"
+            (label_width, label_height), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.4, 1)  # Smaller font size
+            cv2.rectangle(frame, (x1, y1 - label_height - 5), (x1 + label_width, y1), color, -1)  # Background
+            cv2.putText(frame, label, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)  # Smaller text
 
     print("Frame processed.")
     return frame
-
 
 def detect_on_image(image_path):
     """
