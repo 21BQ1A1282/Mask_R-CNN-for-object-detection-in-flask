@@ -1,0 +1,27 @@
+<nav>
+    <a href="{{ url_for('home') }}" class="logo">Object Detection</a>
+    <ul class="nav-links">
+        <li><a href="{{ url_for('home') }}" class="active">Home</a></li>
+        <li><a href="{{ url_for('admin_login') }}">Admin</a></li>
+        {% if session.get('logged_in') %}
+            <li>
+                <a href="{{ url_for('logout') }}" class="user-menu">
+                    <span class="icon">👤</span> Logout
+                </a>
+            </li>
+        {% else %}
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" onclick="toggleDropdown(event)">
+                    <span class="icon">
+                        <img src="{{ url_for('static', filename='images/user.png') }}" alt="Account Icon" style="width: 20px; height: 20px; vertical-align: middle;">
+                    </span>
+                    Account
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="{{ url_for('login') }}">Login</a></li>
+                    <li><a href="{{ url_for('signup') }}">Signin</a></li>
+                </ul>
+            </li>
+        {% endif %}
+    </ul>
+</nav>

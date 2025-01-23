@@ -56,9 +56,9 @@
                 <p>Upload an image to see object detection in action!</p>
                 <div class="upload-container">
                     <form id="upload-form" action="/object-detection/" method="post" enctype="multipart/form-data">
-                        <label for="image">Select Image:</label>
-                        <input type="file" id="image" name="image" accept="image/*" required><br><br>
-                        <input type="submit" value="Upload and Apply Detection">
+                        <label for="file">Select File:</label>
+                        <input type="file" name="file" accept=".png, .jpg, .jpeg, .mp4, .avi, .mov" required>
+                        <input type="submit" value="Upload and Apply Detection"/>
                     </form>
                     <!-- View Detected Image Button -->
                     <div id="view-detected-button" style="display: none;">

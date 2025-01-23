@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+    <nav>
+        <span class="logo">Admin Dashboard</span>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('admin_logout') }}">Logout</a></li>
+        </ul>
+    </nav>
+    <div class="admin-container">
+        <h1>Welcome, Admin</h1>
+        <div class="card">
+            <h3>Quick Actions</h3>
+            <div class="action-buttons">
+                <a href="{{ url_for('model_management') }}" class="action-button">
+                    <span class="icon">📦</span>
+                    <span class="text" style="color: black;">Manage Models</span>
+                </a>
+                <a href="{{ url_for('dataset_management') }}" class="action-button">
+                    <span class="icon">📊</span>
+                    <span class="text"style="color: black;">Manage Datasets</span>
+                </a>
+                <a href="{{ url_for('performance_monitoring') }}" class="action-button">
+                    <span class="icon">📈</span>
+                    <span class="text" style="color: black;">View Performance Metrics</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

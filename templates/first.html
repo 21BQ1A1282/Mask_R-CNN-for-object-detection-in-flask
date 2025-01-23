@@ -8,14 +8,10 @@
 </head>
 <body>
     <!-- Navigation -->
-    <nav>
-        <a href="{{ url_for('home') }}" class="logo">Object Detection</a>
-        <ul class="nav-links">
-            <li><a href="{{ url_for('home') }}" class="active">Home</a></li>
-            <li><a href="{{ url_for('login') }}">Login</a></li>
-            <li><a href="{{ url_for('signup') }}">Sign in</a></li>
-        </ul>
-    </nav>
+
+    
+
+    {% include 'nav.html' %}
 
     <!-- Header -->
     <header>
@@ -57,5 +53,26 @@
     <footer>
         <p>&copy; 2025 Object Detect. All rights reserved.</p>
     </footer>
+    <script>
+        function toggleDropdown(event) {
+    event.preventDefault();
+    const dropdownMenu = event.target.nextElementSibling;
+    if (dropdownMenu) {
+        dropdownMenu.style.display =
+            dropdownMenu.style.display === "block" ? "none" : "block";
+    }
+}
+
+// Optional: Close dropdown when clicking outside
+document.addEventListener("click", function (e) {
+    const dropdowns = document.querySelectorAll(".dropdown-menu");
+    dropdowns.forEach((menu) => {
+        if (!menu.parentElement.contains(e.target)) {
+            menu.style.display = "none";
+        }
+    });
+});
+
+    </script>
 </body>
 </html>

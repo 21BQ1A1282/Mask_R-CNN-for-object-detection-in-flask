@@ -9,6 +9,9 @@ document.getElementById('logout-button').addEventListener('click', function (e) 
         });
 });
 
+
+
+
 // Drag and drop functionality
 function processDrop(event) {
     event.preventDefault();

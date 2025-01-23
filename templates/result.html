@@ -25,14 +25,33 @@
     <div class="main-container">
         <!-- Detected Image -->
          <div class="card">
-            <h2>Original Image</h2>
-            <img src="{{ url_for('static', filename='uploads/' + original_image) }}" alt="Original Image" style="width: 100%;">
+            <h2>Original File</h2>
+            {% if original_file.endswith(('.mp4', '.avi', '.mov')) %}
+    <video controls>
+        <source src="{{ url_for('static', filename='uploads/' + original_file) }}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+{% else %}
+    <img src="{{ url_for('static', filename='uploads/' + original_file) }}" alt="Original File" style="width: 100%;">
+{% endif %}
          </div>
         <div class="card">
-            <h2>Detected Image</h2>
-            <img src="{{ url_for('static', filename='results/' + detected_image) }}" alt="Detected Image" style="width: 100%;">
+            <h2>Processed File</h2>
+            {% if processed_file.endswith(('.mp4', '.avi', '.mov')) %}
+    <video controls>
+        <source src="{{ url_for('static', filename='results/' + processed_file) }}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+{% else %}
+    <img src="{{ url_for('static', filename='results/' + processed_file) }}" alt="Processed File" style="width: 100%;">
+{% endif %}
         </div>
 
+        <br><br>
+        <a href="{{ url_for('static', filename='results/' + processed_file) }}" download>
+        <button class="button" >Download Processed File</button>
+        </a>
+        
         <!-- Back to Upload -->
         <div class="card">
             <a href="{{ url_for('index') }}" class="button">Upload Another Image</a>

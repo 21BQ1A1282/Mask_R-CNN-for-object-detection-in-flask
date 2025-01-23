@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+    <nav>
+        <a href="{{ url_for('admin_dashboard') }}" class="logo">Model Management</a>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('admin_dashboard') }}" class="active">Dashboard</a></li>
+            <li><a href="{{ url_for('admin_logout') }}">Logout</a></li>
+        </ul>
+        </nav>
+        
+        <div class="admin-container">
+            <h1>Model Management</h1>
+        
+            <!-- Upload New Model Card -->
+            <div class="card upload-card">
+                <h3>Upload New Model</h3>
+                <form method="post" enctype="multipart/form-data" class="upload-form">
+                    <div class="file-upload">
+                        <label for="model-file" class="file-label">
+                            <span class="upload-icon">📤</span>
+                            <span class="upload-text">Choose a file ( .pb, .pbtxt )</span>
+                        </label>
+                        <input type="file" id="model-file" name="model" accept=".pb,.pbtxt" required>
+                    </div>
+                    <button type="submit" class="upload-button">Upload Model</button>
+                </form>
+            </div>
+        
+            <!-- Existing Models Card -->
+            <div class="card models-card">
+                <h3>Existing Models</h3>
+                <div class="models-list">
+                    {% for model in models %}
+                    <div class="model-item">
+                        <span class="model-icon">📁</span>
+                        <span class="model-name">{{ model }}</span>
+                        <div class="model-actions">
+                            <button class="action-button edit">✏️ Edit</button>
+                            <button class="action-button delete">🗑️ Delete</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+</body>
+</html>

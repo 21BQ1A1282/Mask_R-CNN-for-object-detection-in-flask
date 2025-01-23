@@ -1,0 +1,528 @@
+/* admin.css */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #ffffff; /* White background */
+    color: #333; /* Dark text color */
+    margin: 0;
+    padding: 0;
+}
+
+/* Navigation Styles */
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    padding: 10px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links li {
+    margin: 0;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1rem;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.nav-links a:hover {
+    background-color: #F44336;
+    color: #fff;
+}
+
+.nav-links a.active {
+    background-color: #D32F2F;
+    color: white;
+}
+
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 1rem;
+}
+
+.nav-links .dropdown {
+    position: relative;
+}
+
+.nav-links .dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: white;
+    list-style: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    border-radius: 5px;
+}
+
+.nav-links .dropdown-menu li {
+    padding: 0.5rem 1rem;
+}
+
+.nav-links .dropdown-menu li a {
+    text-decoration: none;
+    color: #333;
+    display: block;
+}
+
+.nav-links .dropdown-menu li a:hover {
+    background-color: #f0f0f0;
+}
+
+.nav-links .icon {
+    margin-right: 0.5rem;
+}
+
+/* Main Container */
+.admin-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+h1, h2 {
+    color: #d9534f; /* Red color for headings */
+    text-align: center;
+}
+
+/* Cards */
+.card {
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.card h3 {
+    color: #d9534f; /* Red heading */
+    margin-top: 0;
+}
+
+/* Forms */
+form {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+input[type="file"] {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+    max-width: 400px;
+}
+
+button {
+    background-color: #d9534f; /* Red button */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #c9302c; /* Darker red on hover */
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    background-color: #d9534f; /* Red header */
+    color: white;
+}
+
+/* Error Messages */
+.error {
+    color: #d9534f; /* Red error text */
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.action-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    padding: 20px;
+    border-radius: 10px;
+    width: 150px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.action-button:hover {
+    background-color: #0056b3;
+    transform: translateY(-5px);
+}
+
+.action-button .icon {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.action-button .text {
+    font-size: 14px;
+    text-align: center;
+}
+
+/* Metrics and Logs */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.metric-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.metric-item:last-child {
+    border-bottom: none;
+}
+
+.metric-label {
+    font-weight: bold;
+    color: #555;
+}
+
+.metric-value {
+    color: #333;
+    font-weight: 500;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+table tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* Upload Forms */
+.upload-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.file-upload {
+    width: 100%;
+    text-align: center;
+}
+
+.upload-label {
+    display: inline-block;
+    background-color: #007bff;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.upload-label:hover {
+    background-color: #0056b3;
+}
+
+.upload-icon {
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+.upload-text {
+    font-size: 16px;
+}
+
+#dataset, #model-file {
+    display: none;
+}
+
+.upload-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.upload-button:hover {
+    background-color: #218838;
+}
+
+/* Dataset and Model Lists */
+.dataset-list, .models-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.dataset-item, .model-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.dataset-item:hover, .model-item:hover {
+    transform: translateY(-3px);
+}
+
+.dataset-icon, .model-icon {
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+.dataset-name, .model-name {
+    flex-grow: 1;
+    text-align: left;
+    font-size: 16px;
+    color: #333;
+}
+
+.dataset-actions, .model-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.action-button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.action-button:hover {
+    transform: scale(1.1);
+}
+
+.download-button:hover {
+    color: #007bff;
+}
+
+.delete-button:hover {
+    color: #dc3545;
+}
+
+.edit {
+    color: #007bff;
+}
+
+.delete {
+    color: #ff4d4d;
+}
+
+
+.connected-card-container {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    margin: 40px auto;
+    max-width: 1000px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    height: 500px;
+}
+
+.red-card {
+    flex: 1;
+    background: linear-gradient(135deg, #D32F2F, #F44336);
+    color: white;
+    padding: 40px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    clip-path: polygon(0 0, 100% 0, 85% 100%, 0% 100%);
+}
+
+.red-card h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.red-card p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.login-card {
+    flex: 1;
+    padding: 40px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    clip-path: polygon(15% 0, 100% 0, 100% 100%, 0% 100%);
+}
+
+.login-card h2 {
+    color: #D32F2F;
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.login-card form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.login-card input {
+    margin: 10px 0;
+    padding: 12px;
+    width: 80%;
+    max-width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.login-card input:focus {
+    border-color: #D32F2F;
+    outline: none;
+}
+
+.login-card button {
+    padding: 12px 24px;
+    background-color: #D32F2F;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.login-card button:hover {
+    background-color: #B71C1C;
+    transform: translateY(-3px);
+}
+
+.login-card p {
+    font-size: 1.1rem;
+    color: #555;
+}
+
+.login-card a {
+    color: #D32F2F;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.login-card a:hover {
+    color: #B71C1C;
+}
+
+
+
+/* Responsive Design */
+@media screen and (max-width: 767px) {
+    .connected-card-container {
+        flex-direction: column;
+        height: auto;
+        margin: 20px;
+    }
+
+    .red-card, .login-card {
+        width: 100%;
+        padding: 20px;
+        clip-path: none;
+    }
+
+    
+
+    .red-card h2, .login-card h2 {
+        font-size: 1.5rem;
+    }
+
+    .red-card p, .login-card p {
+        font-size: 1rem;
+    }
+
+    .login-card input, .login-card button {
+        width: 100%;
+    }
+}

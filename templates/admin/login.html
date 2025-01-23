@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+    {% include 'nav.html' %}
+    <div class="connected-card-container">
+        <!-- Red-Themed Card -->
+        <div class="red-card">
+            <h2 style="color: white;">Welcome Back, Admin!</h2>
+            <p>
+                Leverage our state-of-the-art Mask R-CNN technology to manage and analyze object detection tasks. 
+                Sign in to access the admin dashboard.
+            </p>
+        </div>
+
+        <!-- Admin Login Card -->
+        <div class="login-card">
+            <h2>Admin Login</h2>
+            <form id="admin-login-form" action="{{ url_for('admin_login') }}" method="post">
+                <input type="text" id="username" name="username" placeholder="Username" required>
+                <input type="password" id="password" name="password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+            {% if error %}
+                <p style="color: red;">{{ error }}</p>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        function toggleDropdown(event) {
+    event.preventDefault();
+    const dropdownMenu = event.target.nextElementSibling;
+    if (dropdownMenu) {
+        dropdownMenu.style.display =
+            dropdownMenu.style.display === "block" ? "none" : "block";
+    }
+}
+
+// Optional: Close dropdown when clicking outside
+document.addEventListener("click", function (e) {
+    const dropdowns = document.querySelectorAll(".dropdown-menu");
+    dropdowns.forEach((menu) => {
+        if (!menu.parentElement.contains(e.target)) {
+            menu.style.display = "none";
+        }
+    });
+});
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Monitoring</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+    <nav>
+        <span class="logo">Performance Monitoring</span>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('admin_dashboard') }}" class="active">Dashboard</a></li>
+            <li><a href="{{ url_for('admin_logout') }}">Logout</a></li>
+        </ul>
+    </nav>
+    <div class="admin-container">
+        <h1>Performance Monitoring</h1>
+        {% if error %}
+        <div class="error-message">
+            <p>{{ error }}</p>
+        </div>
+        {% else %}
+        <div class="metrics-grid">
+            <!-- Metrics Card -->
+            <div class="metrics-card">
+                <h3>📊 Metrics Overview</h3>
+                <div class="metric-item">
+                    <span class="metric-label">mAP</span>
+                    <span class="metric-value">{{ metrics.mAP }}</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">IoU</span>
+                    <span class="metric-value">{{ metrics.IoU }}</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Processing Speed</span>
+                    <span class="metric-value">{{ metrics.processing_speed }}</span>
+                </div>
+            </div>
+    
+            <!-- User Activity Logs Card -->
+            <div class="logs-card">
+                <h3>📝 User Activity Logs</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Action</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in metrics.user_activity %}
+                            <tr>
+                                <td>{{ log.user }}</td>
+                                <td>{{ log.action }}</td>
+                                <td>{{ log.timestamp }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

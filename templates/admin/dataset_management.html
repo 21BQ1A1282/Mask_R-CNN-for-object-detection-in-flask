@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dataset Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+    <nav>
+        <span class="logo">Dataset Management</span>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('admin_dashboard') }}" class="active">Dashboard</a></li>
+            <li><a href="{{ url_for('admin_logout') }}">Logout</a></li>
+        </ul>
+    </nav>
+    <div class="admin-container">
+        <h1>Dataset Management</h1>
+    
+        <!-- Upload Dataset Card -->
+        <div class="card">
+            <h3>📤 Upload New Dataset</h3>
+            <form method="post" enctype="multipart/form-data" class="upload-form">
+                <div class="file-upload">
+                    <label for="dataset" class="upload-label">
+                        <span class="upload-icon">📁</span>
+                        <span class="upload-text">Choose a file (ZIP, TAR, GZ)</span>
+                    </label>
+                    <input type="file" id="dataset" name="dataset" accept=".zip,.tar,.gz" required>
+                </div>
+                <button type="submit" class="upload-button">Upload Dataset</button>
+            </form>
+        </div>
+    
+        <!-- Existing Datasets Card -->
+        <div class="card">
+            <h3>📂 Existing Datasets</h3>
+            <div class="dataset-list">
+                {% for dataset in datasets %}
+                <div class="dataset-item">
+                    <span class="dataset-icon">📄</span>
+                    <span class="dataset-name">{{ dataset }}</span>
+                    <div class="dataset-actions">
+                        <button class="action-button download-button">⬇️ Download</button>
+                        <button class="action-button delete-button">🗑️ Delete</button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
