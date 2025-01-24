@@ -1,6 +1,8 @@
-Flask
-opencv-python
+flask
 numpy
+opencv-python
+opencv-python-headless
 Pillow
-Werkzeug
+pycocotools
+werkzeug
 Gunicorn
