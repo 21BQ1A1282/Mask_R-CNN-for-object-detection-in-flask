@@ -1,5 +1,0 @@
-
-[[redirects]]
-  from = "/*"
-  to = "/first.html"
-  status = 200
