@@ -4,10 +4,12 @@ import os
 import numpy as np
 import cv2
 import json
-from pycocotools.coco import COCO
-from pycocotools.cocoeval import COCOeval
-import time
-from datetime import datetime
+import random
+import colorsys
+from skimage.measure import find_contours
+import matplotlib.pyplot as plt
+from matplotlib import patches, lines
+from matplotlib.patches import Polygon
 
 # Flask app
 app = Flask(__name__)
@@ -45,6 +47,33 @@ def allowed_file(filename, extensions=None):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in extensions
 
 
+
+
+
+def draw_dashed_rectangle(image, top_left, bottom_right, color, thickness=2, dash_length=10):
+    """
+    Draw a dashed rectangle on the image.
+    """
+    x1, y1 = top_left
+    x2, y2 = bottom_right
+
+    # Draw top line
+    for x in range(x1, x2, dash_length * 2):
+        cv2.line(image, (x, y1), (min(x + dash_length, x2), y1), color, thickness)
+
+    # Draw bottom line
+    for x in range(x1, x2, dash_length * 2):
+        cv2.line(image, (x, y2), (min(x + dash_length, x2), y2), color, thickness)
+
+    # Draw left line
+    for y in range(y1, y2, dash_length * 2):
+        cv2.line(image, (x1, y), (x1, min(y + dash_length, y2)), color, thickness)
+
+    # Draw right line
+    for y in range(y1, y2, dash_length * 2):
+        cv2.line(image, (x2, y), (x2, min(y + dash_length, y2)), color, thickness)
+
+
 def process_frame(frame):
     """
     Detect and visualize objects in a single frame using Mask R-CNN.
@@ -58,6 +87,18 @@ def process_frame(frame):
     # Perform forward pass to get the detections and masks
     (boxes, masks) = net.forward(["detection_out_final", "detection_masks"])
 
+    # Generate unique colors for each object
+    object_colors = [
+        (255, 0, 0),    # Red
+        (0, 255, 0),    # Green
+        (0, 0, 255),    # Blue
+        (255, 0, 255),  # Pink
+        (128, 0, 128),  # Violet
+        (255, 255, 0),  # Yellow
+        (0, 255, 255),  # Cyan
+        (255, 165, 0),  # Orange
+    ]
+
     # Loop through all detected objects and visualize the results
     for i in range(boxes.shape[2]):
         score = boxes[0, 0, i, 2]  # Get the confidence score
@@ -68,24 +109,56 @@ def process_frame(frame):
 
             # Extract and resize the mask for the object
             mask = masks[i, class_id]
-            mask = cv2.resize(mask, (x2 - x1, y2 - y1), interpolation=cv2.INTER_NEAREST)
+            mask = cv2.resize(mask, (x2 - x1, y2 - y1), interpolation=cv2.INTER_LINEAR)
+
+            # Apply Gaussian blur to smooth the mask
+            mask = cv2.GaussianBlur(mask, (7, 7), 0)
 
             # Threshold the mask to create a binary mask
-            mask = (mask > 0.5).astype("uint8")
+            mask = (mask > 0.5).astype("uint8") * 255  # Scale to 0-255
 
-            # Create a dark color for the mask
-            color = [int(c * 0.5) for c in colors[class_id]]  # Darken the color
+            # Refine the mask using morphological operations
+            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+            mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)  # Close small holes
+            mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)  # Remove small noise
 
-            # Create a colored mask overlay
+            # Find contours of the mask
+            contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+            # Create a blank mask for the refined shape
+            refined_mask = np.zeros_like(mask)
+
+            # Draw the largest contour (main object) on the refined mask
+            if contours:
+                largest_contour = max(contours, key=cv2.contourArea)
+                cv2.drawContours(refined_mask, [largest_contour], -1, 255, thickness=cv2.FILLED)
+
+            # Smooth the contour using contour approximation
+            epsilon = 0.005 * cv2.arcLength(largest_contour, True)
+            smoothed_contour = cv2.approxPolyDP(largest_contour, epsilon, True)
+
+            # Draw the smoothed contour on the refined mask
+            refined_mask = np.zeros_like(mask)
+            cv2.drawContours(refined_mask, [smoothed_contour], -1, 255, thickness=cv2.FILLED)
+
+            # Apply the refined mask to the original frame (inside the bounding box only)
+            color = object_colors[i % len(object_colors)]  # Cycle through unique colors
             colored_mask = np.zeros_like(frame[y1:y2, x1:x2], dtype=np.uint8)
-            colored_mask[mask > 0] = color  # Apply the dark color to the mask region
+            colored_mask[refined_mask > 0] = color  # Apply the color to the refined mask region
 
-            # Blend the colored mask with the original frame
-            alpha = 0.5  # Transparency factor (0 = fully transparent, 1 = fully opaque)
+            # Blend the colored mask with the original frame using alpha blending (inside the bounding box only)
+            alpha = 0.5  # Adjust transparency for better blending
             frame[y1:y2, x1:x2] = cv2.addWeighted(colored_mask, alpha, frame[y1:y2, x1:x2], 1 - alpha, 0)
 
-            # Draw the bounding box
-            cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+            # Draw the bounding box with dashed lines
+            draw_dashed_rectangle(frame, (x1, y1), (x2, y2), color, thickness=2, dash_length=10)
+
+            # Draw the edge shape (contour) of the object (inside the bounding box only)
+            for contour in contours:
+                # Scale the contour to the original image coordinates
+                contour = contour + np.array([[x1, y1]])
+                # Draw the contour on the frame
+                cv2.drawContours(frame, [contour], -1, color, thickness=1)  # Contour thickness
 
             # Display the label with a background for better visibility
             label = f"{classes[class_id]}: {score:.2f}"
@@ -106,6 +179,8 @@ def detect_on_image(image_path):
     # Save the processed image
     result_path = os.path.join(RESULT_FOLDER, os.path.basename(image_path))
     cv2.imwrite(result_path, result)
+    print("Original file path:", image_path)
+    print("Processed file path:", result_path)
     return result_path
 
 
@@ -147,6 +222,8 @@ def detect_on_video(video_path):
     out.release()
 
     return result_path
+
+
 
 
 # Home route
@@ -196,11 +273,16 @@ def logout():
 
 
 # Object detection route
+
 @app.route('/index')
 def index():
     if not session.get('logged_in'):
         return redirect(url_for('login'))  # Redirect to login if not logged in
-    return render_template('index.html')
+
+    # Pass the processed file path to the template
+    processed_file = session.get('processed_file', None)
+    original_file = session.get('original_file', None)
+    return render_template('index.html', original_file=original_file, processed_file=processed_file)
 
 
 # Upload and process image or video
@@ -233,21 +315,17 @@ def apply_detection():
         session['original_file'] = filename
         session['processed_file'] = os.path.basename(result_path)
 
-        # Redirect to the result page
-        return redirect(url_for('result'))
+        # Redirect to the index page with the result
+        return redirect(url_for('index'))
 
     return redirect(request.url)
 
 
-# Result page
-@app.route('/result')
-def result():
-    if 'original_file' not in session or 'processed_file' not in session:
-        return redirect(url_for('index'))
-
-    original_file = session['original_file']
-    processed_file = session['processed_file']
-    return render_template('result.html', original_file=original_file, processed_file=processed_file)
+@app.route('/reset', methods=['POST'])
+def reset():
+    session.pop('original_file', None)
+    session.pop('processed_file', None)
+    return redirect(url_for('index'))
 
 # Video feed route
 @app.route('/video_feed')
@@ -579,5 +657,5 @@ def save_users(users):
 
 
 # Run the app
-# if __name__ == '__main__':
-#     app.run(host="0.0.0.0", port=8000, debug=True)
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=8000, debug=True)

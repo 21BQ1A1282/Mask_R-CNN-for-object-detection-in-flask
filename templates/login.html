@@ -15,7 +15,7 @@
         <a href="{{ url_for('home') }}" class="logo">Object Detection</a>
         <ul class="nav-links">
             <li><a href="{{ url_for('home') }}">Home</a></li>
-            <li><a href="{{ url_for('signup') }}">Sign in</a></li>
+            <li><a href="{{ url_for('signup') }}">Signup</a></li>
         </ul>
     </nav>
 
@@ -38,7 +38,7 @@
                 <input type="password" id="login-password" name="login-password" placeholder="Password" required>
                 <button type="submit">Login</button>
             </form>
-            <p>Don't have an account? <a href="{{ url_for('signup') }}">Sign in here</a>.</p>
+            <p>Don't have an account? <a href="{{ url_for('signup') }}">Sign Up here</a>.</p>
             {% if error %}
                 <p style="color: red;">{{ error }}</p>
             {% endif %}
