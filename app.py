@@ -177,8 +177,6 @@ def detect_on_image(image_path):
     # Save the processed image
     result_path = os.path.join(RESULT_FOLDER, os.path.basename(image_path))
     cv2.imwrite(result_path, result)
-    print("Original file path:", image_path)
-    print("Processed file path:", result_path)
     return result_path
 
 
@@ -220,6 +218,7 @@ def detect_on_video(video_path):
     out.release()
 
     return result_path
+
 
 
 
@@ -271,16 +270,11 @@ def logout():
 
 
 # Object detection route
-
 @app.route('/index')
 def index():
     if not session.get('logged_in'):
         return redirect(url_for('login'))  # Redirect to login if not logged in
-
-    # Pass the processed file path to the template
-    processed_file = session.get('processed_file', None)
-    original_file = session.get('original_file', None)
-    return render_template('index.html', original_file=original_file, processed_file=processed_file)
+    return render_template('index.html')
 
 
 # Upload and process image or video
@@ -313,17 +307,21 @@ def apply_detection():
         session['original_file'] = filename
         session['processed_file'] = os.path.basename(result_path)
 
-        # Redirect to the index page with the result
-        return redirect(url_for('index'))
+        # Redirect to the result page
+        return redirect(url_for('result'))
 
     return redirect(request.url)
 
 
-@app.route('/reset', methods=['POST'])
-def reset():
-    session.pop('original_file', None)
-    session.pop('processed_file', None)
-    return redirect(url_for('index'))
+# Result page
+@app.route('/result')
+def result():
+    if 'original_file' not in session or 'processed_file' not in session:
+        return redirect(url_for('index'))
+
+    original_file = session['original_file']
+    processed_file = session['processed_file']
+    return render_template('result.html', original_file=original_file, processed_file=processed_file)
 
 # Video feed route
 @app.route('/video_feed')
@@ -655,5 +653,5 @@ def save_users(users):
 
 
 # Run the app
-# if __name__ == '__main__':
-#     app.run(host="0.0.0.0", port=8000, debug=True)
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=8000, debug=True)

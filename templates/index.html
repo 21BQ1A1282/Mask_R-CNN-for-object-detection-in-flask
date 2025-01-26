@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Object Detection</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
-
 </head>
 <body>
     <nav>
@@ -36,6 +35,21 @@
         </section>
 
         <!-- Upload Section -->
+         <!-- Upload Section -->
+<section hidden>
+    <div class="card">
+        <h2>Try Object Detection</h2>
+        <p>Upload an image to see object detection in action!</p>
+        <form id="upload-form" action="/object-detection/" method="post" enctype="multipart/form-data">
+            <label for="image">Select Image:</label>
+            <input type="file" id="image" name="image" accept="image/*" required><br><br>
+            <input type="submit" value="Upload and Apply Detection">
+        </form>
+        <div id="detected-image-button" style="display: none;">
+            <a href="{{ url_for('result') }}" class="button">View Detected Image</a>
+        </div>
+    </div>
+</section>
         <section>
             <div class="card">
                 <h2>Try Object Detection</h2>
@@ -46,51 +60,17 @@
                         <input type="file" name="file" accept=".png, .jpg, .jpeg, .mp4, .avi, .mov" required>
                         <input type="submit" value="Upload and Apply Detection"/>
                     </form>
+                    <!-- View Detected Image Button -->
+                    <div id="view-detected-button" style="display: none;">
+                        <a href="{{ url_for('result') }}" class="button">View Detected Image</a>
+                    </div>
                     <!-- View Video Feed Button -->
-                    <div id="view-video-button" style="margin-top: 20px;">
+                    <div id="view-video-button">
                         <a href="{{ url_for('video') }}" class="button">View Video Feed</a>
                     </div>
                 </div>
             </div>
         </section>
-
-        <!-- Display Results Section -->
-        {% if original_file and processed_file %}
-        <section>
-            <div class="card">
-                <h2>Detection Results</h2>
-                <div class="image-container">
-                    <div>
-                        <h3>Original File</h3>
-                        <img src="{{ url_for('static', filename='uploads/' + original_file) }}" alt="Original Image" style="width: 60%;">
-                    </div>
-                    <div>
-                        <h3>Processed File</h3>
-                        <img src="{{ url_for('static', filename='results/' + processed_file) }}" alt="Processed Image" style="width: 60%;">
-                    </div>
-                </div>
-                <br><br>
-
-                <a href="{{ url_for('static', filename='results/' + processed_file) }}" download>
-                    <button class="button" >Download Processed File</button>
-                </a>
-
-                {% if original_file and processed_file %}
-                <div style="text-align: center; margin-top: 20px;">
-                    <form action="/reset" method="post">
-                    <button class="button" type="submit">Reset</button>
-                </form>
-                </div>
-                {% endif %}
-            </div>
-        </section>
-        {% endif %}
-
-
-        
-
-
-        
 
         <!-- Models Section -->
         <section>
@@ -121,5 +101,30 @@
     <footer>
         <p>&copy; 2025 Object Detect. All rights reserved.</p>
     </footer>
+
+    <script>
+        document.getElementById('upload-form').onsubmit = async function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const response = await fetch('/object-detection/', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+
+                const outputImage = document.getElementById('output-image');
+                outputImage.src = url;
+
+                const downloadLink = document.getElementById('download-link');
+                downloadLink.href = url;
+            } else {
+                console.error('Failed to process image');
+            }
+        };
+    </script>
 </body>
 </html>
