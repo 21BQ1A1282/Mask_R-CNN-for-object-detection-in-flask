@@ -71,37 +71,36 @@ def draw_dashed_rectangle(image, top_left, bottom_right, color, thickness=2, das
     for y in range(y1, y2, dash_length * 2):
         cv2.line(image, (x2, y), (x2, min(y + dash_length, y2)), color, thickness)
 
+# Define object_colors globally
+object_colors = [
+    (255, 0, 0),    # Red
+    (0, 255, 0),    # Green
+    (0, 0, 255),    # Blue
+    (255, 0, 255),  # Pink
+    (128, 0, 128),  # Violet
+    (255, 255, 0),  # Yellow
+    (0, 255, 255),  # Cyan
+    (255, 165, 0),  # Orange
+]
 
-def process_frame(frame):
-    """
-    Detect and visualize objects in a single frame using Mask R-CNN.
-    """
+def process_frame(frame, class_name=None):
     height, width, _ = frame.shape
-
-    # Prepare the image blob for input to the network
     blob = cv2.dnn.blobFromImage(frame, swapRB=True, crop=False)
     net.setInput(blob)
-
-    # Perform forward pass to get the detections and masks
     (boxes, masks) = net.forward(["detection_out_final", "detection_masks"])
+    
+    scores = []  # Collect confidence scores here
 
-    # Generate unique colors for each object
-    object_colors = [
-        (255, 0, 0),    # Red
-        (0, 255, 0),    # Green
-        (0, 0, 255),    # Blue
-        (255, 0, 255),  # Pink
-        (128, 0, 128),  # Violet
-        (255, 255, 0),  # Yellow
-        (0, 255, 255),  # Cyan
-        (255, 165, 0),  # Orange
-    ]
-
-    # Loop through all detected objects and visualize the results
+    # Loop through all detected objects
     for i in range(boxes.shape[2]):
-        score = boxes[0, 0, i, 2]  # Get the confidence score
-        if score > 0.5:  # Only consider detections with a score higher than 0.5
-            class_id = int(boxes[0, 0, i, 1])  # Get the class id of the detected object
+        score = boxes[0, 0, i, 2]
+        if score > 0.5:  # Only consider detections with score > 0.5
+            class_id = int(boxes[0, 0, i, 1])
+            class_label = classes[class_id]
+            if class_name and class_label.lower() != class_name.lower():
+                continue  # Skip if class doesn't match filter
+            scores.append(score)
+
             box = boxes[0, 0, i, 3:7] * np.array([width, height, width, height])
             (x1, y1, x2, y2) = box.astype("int")  # Get the coordinates of the bounding box
 
@@ -159,31 +158,27 @@ def process_frame(frame):
                 cv2.drawContours(frame, [contour], -1, color, thickness=1)  # Contour thickness
 
             # Display the label with a background for better visibility
-            label = f"{classes[class_id]}: {score:.2f}"
+            label = f"{class_label}: {score:.2f}"
             (label_width, label_height), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.4, 1)  # Smaller font size
             cv2.rectangle(frame, (x1, y1 - label_height - 5), (x1 + label_width, y1), color, -1)  # Background
             cv2.putText(frame, label, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)  # Smaller text
 
-    return frame
+    return frame, scores
 
-
-def detect_on_image(image_path):
-    """
-    Detect objects in an image using Mask R-CNN.
-    """
+def detect_on_image(image_path, class_name=None):
     frame = cv2.imread(image_path)
-    result = process_frame(frame)
-
-    # Save the processed image
+    processed_frame, scores = process_frame(frame, class_name)
+    # Calculate average confidence (convert to percentage)
+    avg_confidence = (sum(scores) / len(scores)) * 100 if scores else 0
+    # Save the result
     result_path = os.path.join(RESULT_FOLDER, os.path.basename(image_path))
-    cv2.imwrite(result_path, result)
+    cv2.imwrite(result_path, processed_frame)
+    # Store average confidence in session
+    session['accuracy'] = round(avg_confidence, 2)
     return result_path
 
 
-def detect_on_video(video_path):
-    """
-    Detect objects in a video using Mask R-CNN.
-    """
+def detect_on_video(video_path, class_name=None):
     # Open the video file
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
@@ -202,16 +197,17 @@ def detect_on_video(video_path):
     out = cv2.VideoWriter(result_path, fourcc, fps, (frame_width, frame_height))
 
     # Process each frame in the video
+    all_scores = []
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
-
-        # Process the frame using the Mask R-CNN model
-        processed_frame = process_frame(frame)
-
-        # Write the processed frame to the output video
+        processed_frame, scores = process_frame(frame, class_name)
+        all_scores.extend(scores)
         out.write(processed_frame)
+    # Calculate average confidence
+    avg_confidence = (sum(all_scores) / len(all_scores)) * 100 if all_scores else 0
+    session['accuracy'] = round(avg_confidence, 2)
 
     # Release the video capture and writer objects
     cap.release()
@@ -222,6 +218,126 @@ def detect_on_video(video_path):
 
 
 
+def detect_image_in_image(source_path, target_path):
+    """
+    Detect if target image appears within source image
+    Returns confidence score and processed image with detection highlighted
+    """
+    # Read images
+    source_img = cv2.imread(source_path)
+    target_img = cv2.imread(target_path)
+    
+    # Convert images to grayscale
+    source_gray = cv2.cvtColor(source_img, cv2.COLOR_BGR2GRAY)
+    target_gray = cv2.cvtColor(target_img, cv2.COLOR_BGR2GRAY)
+    
+    # Initialize SIFT detector
+    sift = cv2.SIFT_create()
+    
+    # Find keypoints and descriptors
+    kp1, des1 = sift.detectAndCompute(target_gray, None)
+    kp2, des2 = sift.detectAndCompute(source_gray, None)
+    
+    # Initialize parameters for matching
+    FLANN_INDEX_KDTREE = 1
+    index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees=5)
+    search_params = dict(checks=50)
+    
+    # Create FLANN matcher
+    flann = cv2.FlannBasedMatcher(index_params, search_params)
+    
+    if des1 is None or des2 is None or len(des1) < 2 or len(des2) < 2:
+        return 0, source_img
+    
+    # Find matches
+    matches = flann.knnMatch(des1, des2, k=2)
+    
+    # Apply ratio test
+    good_matches = []
+    for m, n in matches:
+        if m.distance < 0.7 * n.distance:
+            good_matches.append(m)
+    
+    # Calculate confidence score
+    confidence_score = len(good_matches) / len(kp1) if len(kp1) > 0 else 0
+    
+    # If we have enough good matches, find the object
+    if len(good_matches) >= 4:
+        src_pts = np.float32([kp1[m.queryIdx].pt for m in good_matches]).reshape(-1, 1, 2)
+        dst_pts = np.float32([kp2[m.trainIdx].pt for m in good_matches]).reshape(-1, 1, 2)
+        
+        # Find homography
+        H, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
+        
+        if H is not None:
+            # Get dimensions of target image
+            h, w = target_gray.shape
+            pts = np.float32([[0, 0], [0, h-1], [w-1, h-1], [w-1, 0]]).reshape(-1, 1, 2)
+            
+            # Transform corners into source image space
+            dst = cv2.perspectiveTransform(pts, H)
+            
+            # Draw detected object
+            result = cv2.polylines(source_img, [np.int32(dst)], True, (0, 255, 0), 3)
+            
+            # Add confidence score to image
+            cv2.putText(result, f'Match Score: {confidence_score:.2%}', 
+                       (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            
+            return confidence_score, result
+    
+    return confidence_score, source_img
+
+# Add new route for image matching
+@app.route('/match-images', methods=['POST'])
+def match_images():
+    if 'source_image' not in request.files or 'target_image' not in request.files:
+        return redirect(request.url)
+        
+    source_file = request.files['source_image']
+    target_file = request.files['target_image']
+    
+    if source_file.filename == '' or target_file.filename == '':
+        return redirect(request.url)
+        
+    if (source_file and allowed_file(source_file.filename) and 
+        target_file and allowed_file(target_file.filename)):
+        
+        # Save uploaded files
+        source_filename = secure_filename(source_file.filename)
+        target_filename = secure_filename(target_file.filename)
+        
+        source_path = os.path.join(UPLOAD_FOLDER, source_filename)
+        target_path = os.path.join(UPLOAD_FOLDER, target_filename)
+        
+        source_file.save(source_path)
+        target_file.save(target_path)
+        
+        # Process images
+        confidence_score, result_img = detect_image_in_image(source_path, target_path)
+        
+        # Save result
+        result_filename = 'match_' + source_filename
+        result_path = os.path.join(RESULT_FOLDER, result_filename)
+        cv2.imwrite(result_path, result_img)
+        
+        # Store results in session
+        session['match_result'] = result_filename
+        session['match_confidence'] = round(confidence_score * 100, 2)
+        
+        return redirect(url_for('match_result'))
+        
+    return redirect(url_for('index'))
+
+# Add route for showing match results
+@app.route('/match-result')
+def match_result():
+    if 'match_result' not in session:
+        return redirect(url_for('index'))
+        
+    return render_template('match_result.html',
+                         result_file=session['match_result'],
+                         confidence=session['match_confidence'])
 
 # Home route
 @app.route('/')
@@ -313,15 +429,44 @@ def apply_detection():
     return redirect(request.url)
 
 
+@app.route('/filter-detection', methods=['POST'])
+def filter_detection():
+    if 'original_file' not in session or 'processed_file' not in session:
+        return redirect(url_for('index'))
+
+    # Get the class name from the form
+    class_name = request.form['class_name'].strip().lower()
+
+    # Get the original file path
+    original_file = session['original_file']
+    original_file_path = os.path.join(UPLOAD_FOLDER, original_file)
+
+    # Process the image or video with the specified class filter
+    if original_file.lower().endswith(('.png', '.jpg', '.jpeg')):
+        result_path = detect_on_image(original_file_path, class_name)
+    elif original_file.lower().endswith(('.mp4', '.avi', '.mov')):
+        result_path = detect_on_video(original_file_path, class_name)
+    else:
+        return redirect(url_for('index'))
+
+    # Update the processed file in the session
+    session['processed_file'] = os.path.basename(result_path)
+
+    # Redirect to the result page
+    return redirect(url_for('result'))
+
+
 # Result page
 @app.route('/result')
 def result():
     if 'original_file' not in session or 'processed_file' not in session:
         return redirect(url_for('index'))
-
-    original_file = session['original_file']
-    processed_file = session['processed_file']
-    return render_template('result.html', original_file=original_file, processed_file=processed_file)
+    # Retrieve accuracy from session, default to 0 if not found
+    accuracy = session.get('accuracy', 0)
+    return render_template('result.html', 
+                         original_file=session['original_file'],
+                         processed_file=session['processed_file'],
+                         accuracy=accuracy)
 
 # Video feed route
 @app.route('/video_feed')

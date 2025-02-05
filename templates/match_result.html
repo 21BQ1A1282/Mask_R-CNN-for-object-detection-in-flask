@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Matching Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <a href="{{ url_for('home') }}" class="logo">Object Detection</a>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+    </nav>
+
+    <!-- Header -->
+    <header>
+        <h1>Image Matching Result</h1>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Results Card -->
+        <div class="card">
+            <h2>Matching Result</h2>
+            <img src="{{ url_for('static', filename='results/' + result_file) }}" alt="Matching Result" style="width: 100%;">
+        </div>
+
+        <!-- Confidence Score Section -->
+        <div class="accuracy-section">
+            <h2 style="color: #D32F2F;">
+                Match Confidence: <span style="color: #333;">{{ confidence }}%</span>
+            </h2>
+        </div>
+
+        <!-- Match Status Card -->
+        <div class="card">
+            {% if confidence >= 50 %}
+                <div style="background-color: #4CAF50; color: white; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                    <h3 style="margin: 0; margin-bottom: 10px;">Match Found!</h3>
+                    <p style="margin: 0;">The target image appears to be part of the source image.</p>
+                </div>
+            {% else %}
+                <div style="background-color: #FFA726; color: white; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                    <h3 style="margin: 0; margin-bottom: 10px;">No Clear Match</h3>
+                    <p style="margin: 0;">The target image does not appear to be part of the source image.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Download Section -->
+        <br><br>
+        <a href="{{ url_for('static', filename='results/' + result_file) }}" download>
+            <button class="button">Download Result</button>
+        </a>
+
+        <!-- Back to Upload -->
+        <div class="card">
+            <a href="{{ url_for('index') }}" class="button">Try Another Match</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Object Detect. All rights reserved.</p>
+    </footer>
+</body>
+</html>

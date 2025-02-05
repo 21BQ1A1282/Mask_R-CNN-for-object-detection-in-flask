@@ -35,21 +35,22 @@
         </section>
 
         <!-- Upload Section -->
-         <!-- Upload Section -->
-<section hidden>
-    <div class="card">
-        <h2>Try Object Detection</h2>
-        <p>Upload an image to see object detection in action!</p>
-        <form id="upload-form" action="/object-detection/" method="post" enctype="multipart/form-data">
-            <label for="image">Select Image:</label>
-            <input type="file" id="image" name="image" accept="image/*" required><br><br>
-            <input type="submit" value="Upload and Apply Detection">
-        </form>
-        <div id="detected-image-button" style="display: none;">
-            <a href="{{ url_for('result') }}" class="button">View Detected Image</a>
-        </div>
-    </div>
-</section>
+        <section hidden>
+            <div class="card">
+                <h2>Try Object Detection</h2>
+                <p>Upload an image to see object detection in action!</p>
+                <form id="upload-form" action="/object-detection/" method="post" enctype="multipart/form-data">
+                    <label for="image">Select Image:</label>
+                    <input type="file" id="image" name="image" accept="image/*" required><br><br>
+                    <input type="submit" value="Upload and Apply Detection">
+                </form>
+                <div id="detected-image-button" style="display: none;">
+                    <a href="{{ url_for('result') }}" class="button">View Detected Image</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Upload Section -->
         <section>
             <div class="card">
                 <h2>Try Object Detection</h2>
@@ -68,6 +69,27 @@
                     <div id="view-video-button">
                         <a href="{{ url_for('video') }}" class="button">View Video Feed</a>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- New Image Matching Section -->
+        <section>
+            <div class="card">
+                <h2>Image Matching</h2>
+                <p>Find if one image is part of another image!</p>
+                <div class="upload-container">
+                    <form action="{{ url_for('match_images') }}" method="post" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="source_image">Source Image (larger image to search within):</label>
+                            <input type="file" class="form-control-file" id="source_image" name="source_image" accept=".png, .jpg, .jpeg" required>
+                        </div>
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label for="target_image">Target Image (smaller image to find):</label>
+                            <input type="file" class="form-control-file" id="target_image" name="target_image" accept=".png, .jpg, .jpeg" required>
+                        </div>
+                        <input type="submit" value="Find Match" class="button" style="margin-top: 15px;"/>
+                    </form>
                 </div>
             </div>
         </section>
