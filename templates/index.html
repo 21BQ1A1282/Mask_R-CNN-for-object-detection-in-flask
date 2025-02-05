@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Object Detection</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <style>
+        .section {
+            display: none;
+        }
+        .section.active {
+            display: block;
+        }
+    </style>
 </head>
 <body>
     <nav>
@@ -23,9 +31,11 @@
         </div>
     </header>
 
+
     <!-- Main Content -->
     <div class="container">
-        <!-- Introduction Section -->
+        <!-- Buttons to toggle sections -->
+
         <section>
             <div class="card">
                 <h2>What is Object Detection?</h2>
@@ -33,6 +43,15 @@
                 <p>Object detection models are used across industries for a range of use cases, from autonomous vehicles to medical imaging.</p>
             </div>
         </section>
+
+
+        <div class="card">
+            <h2>Try Object Detection</h2>
+            <button onclick="showSection('image-video-section')" class="button">Image/Video Upload </button>
+            <button onclick="showSection('video-feed-section')" class="button">Video Feed </button>
+            <button onclick="showSection('prompt-section')" class="button">Filter Detections</button>
+            <button onclick="showSection('image-matching-section')" class="button">Image Matching</button>
+        </div>
 
         <!-- Upload Section -->
         <section hidden>
@@ -50,11 +69,10 @@
             </div>
         </section>
 
-        <!-- Main Upload Section -->
-        <section>
+        <!-- Image & Video Upload Section -->
+        <section id="image-video-section" class="section">
             <div class="card">
-                <h2>Try Object Detection</h2>
-                <p>Upload an image to see object detection in action!</p>
+                <h2>Upload an Image or Video</h2>
                 <div class="upload-container">
                     <form id="upload-form" action="/object-detection/" method="post" enctype="multipart/form-data">
                         <label for="file">Select File:</label>
@@ -65,16 +83,48 @@
                     <div id="view-detected-button" style="display: none;">
                         <a href="{{ url_for('result') }}" class="button">View Detected Image</a>
                     </div>
-                    <!-- View Video Feed Button -->
-                    <div id="view-video-button">
-                        <a href="{{ url_for('video') }}" class="button">View Video Feed</a>
-                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- New Image Matching Section -->
-        <section>
+        <!-- Video Feed Section -->
+        <section id="video-feed-section" class="section">
+            <div class="card">
+                <h2>Video Feed</h2>
+                <p>View the live video feed with object detection applied.</p>
+                <div class="video-container">
+                    <a href="{{ url_for('video') }}" class="button">View Video Feed</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Prompt Section -->
+        <section id="prompt-section" class="section">
+            <div class="card">
+                <h2>Filter Detections</h2>
+                <div class="upload-container">
+                <form id="upload-form" action="{{ url_for('filter_detection') }}" method="post" enctype="multipart/form-data">
+                    <label for="file" >Select File:</label>
+                    <input type="file" name="file" accept=".png, .jpg, .jpeg, .mp4, .avi, .mov" required>
+                    
+                    <label for="class_name" style="color: #333; font-weight: bold; font-size: 16px; display: block; margin-bottom: 5px;">
+                        Enter Class Name <span style="font-style: italic; color: #666;">(e.g., Car, Person)</span>:
+                    </label>
+                    <input type="text" id="class_name" name="class_name" 
+                           placeholder="Type here..." 
+                           required 
+                           style="width: 40%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px;  transition: border-color 0.3s ease-in-out;"
+                           onfocus="this.style.borderColor='#D32F2F'" 
+                           onblur="this.style.borderColor='#ccc'">
+
+                    <button type="submit" class="button">Filter</button>
+                </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Image Matching Section -->
+        <section id="image-matching-section" class="section">
             <div class="card">
                 <h2>Image Matching</h2>
                 <p>Find if one image is part of another image!</p>
@@ -125,6 +175,16 @@
     </footer>
 
     <script>
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Show the selected section
+            document.getElementById(sectionId).classList.add('active');
+        }
+
         document.getElementById('upload-form').onsubmit = async function(event) {
             event.preventDefault();
 

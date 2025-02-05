@@ -58,26 +58,6 @@
         </a>
 
 
-        <!-- Prompt Section -->
-    <div>
-        <div class="card">
-        <h2>Filter Detections</h2>
-        <form action="{{ url_for('filter_detection') }}" method="POST">
-            <label for="class_name" style="color: #333; font-weight: bold; font-size: 16px; display: block; margin-bottom: 5px;">
-                Enter Class Name <span style="font-style: italic; color: #666;">(e.g., Car, Person)</span>:
-            </label>
-            <input type="text" id="class_name" name="class_name" 
-       placeholder="Type here..." 
-       required 
-       style="width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; outline: none; transition: border-color 0.3s ease-in-out;"
-       onfocus="this.style.borderColor='#D32F2F'" 
-       onblur="this.style.borderColor='#ccc'">
-
-            <button type="submit" class="button">Filter</button>
-        </form>
-        </div>
-    </div>
-
         
         <!-- Back to Upload -->
         <div class="card">

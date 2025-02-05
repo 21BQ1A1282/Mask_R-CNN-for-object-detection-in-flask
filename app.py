@@ -288,56 +288,6 @@ def detect_image_in_image(source_path, target_path):
     
     return confidence_score, source_img
 
-# Add new route for image matching
-@app.route('/match-images', methods=['POST'])
-def match_images():
-    if 'source_image' not in request.files or 'target_image' not in request.files:
-        return redirect(request.url)
-        
-    source_file = request.files['source_image']
-    target_file = request.files['target_image']
-    
-    if source_file.filename == '' or target_file.filename == '':
-        return redirect(request.url)
-        
-    if (source_file and allowed_file(source_file.filename) and 
-        target_file and allowed_file(target_file.filename)):
-        
-        # Save uploaded files
-        source_filename = secure_filename(source_file.filename)
-        target_filename = secure_filename(target_file.filename)
-        
-        source_path = os.path.join(UPLOAD_FOLDER, source_filename)
-        target_path = os.path.join(UPLOAD_FOLDER, target_filename)
-        
-        source_file.save(source_path)
-        target_file.save(target_path)
-        
-        # Process images
-        confidence_score, result_img = detect_image_in_image(source_path, target_path)
-        
-        # Save result
-        result_filename = 'match_' + source_filename
-        result_path = os.path.join(RESULT_FOLDER, result_filename)
-        cv2.imwrite(result_path, result_img)
-        
-        # Store results in session
-        session['match_result'] = result_filename
-        session['match_confidence'] = round(confidence_score * 100, 2)
-        
-        return redirect(url_for('match_result'))
-        
-    return redirect(url_for('index'))
-
-# Add route for showing match results
-@app.route('/match-result')
-def match_result():
-    if 'match_result' not in session:
-        return redirect(url_for('index'))
-        
-    return render_template('match_result.html',
-                         result_file=session['match_result'],
-                         confidence=session['match_confidence'])
 
 # Home route
 @app.route('/')
@@ -429,31 +379,90 @@ def apply_detection():
     return redirect(request.url)
 
 
-@app.route('/filter-detection', methods=['POST'])
+@app.route('/filter_detection', methods=['POST'])
 def filter_detection():
-    if 'original_file' not in session or 'processed_file' not in session:
-        return redirect(url_for('index'))
-
-    # Get the class name from the form
-    class_name = request.form['class_name'].strip().lower()
-
-    # Get the original file path
-    original_file = session['original_file']
-    original_file_path = os.path.join(UPLOAD_FOLDER, original_file)
-
-    # Process the image or video with the specified class filter
-    if original_file.lower().endswith(('.png', '.jpg', '.jpeg')):
-        result_path = detect_on_image(original_file_path, class_name)
-    elif original_file.lower().endswith(('.mp4', '.avi', '.mov')):
-        result_path = detect_on_video(original_file_path, class_name)
+    if 'file' not in request.files:
+        return redirect(request.url)
+    
+    file = request.files['file']
+    class_name = request.form['class_name']
+    
+    if file.filename == '':
+        return redirect(request.url)
+    
+    filename = secure_filename(file.filename)
+    file_path = os.path.join(UPLOAD_FOLDER, filename)
+    file.save(file_path)
+    
+    # Process image or video
+    if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
+        processed_path = detect_on_image(file_path, class_name)
+    elif filename.lower().endswith(('.mp4', '.avi', '.mov')):
+        processed_path = detect_on_video(file_path, class_name)
     else:
+        return "Unsupported file format", 400
+    
+    processed_filename = os.path.basename(processed_path)
+    accuracy = session.get('accuracy', 0)
+    
+    return render_template('result.html', 
+                           original_file=filename, 
+                           processed_file=processed_filename, 
+                           accuracy=accuracy)
+
+
+# Add new route for image matching
+@app.route('/match-images', methods=['POST'])
+def match_images():
+    if 'source_image' not in request.files or 'target_image' not in request.files:
+        return redirect(request.url)
+        
+    source_file = request.files['source_image']
+    target_file = request.files['target_image']
+    
+    if source_file.filename == '' or target_file.filename == '':
+        return redirect(request.url)
+        
+    if (source_file and allowed_file(source_file.filename) and 
+        target_file and allowed_file(target_file.filename)):
+        
+        # Save uploaded files
+        source_filename = secure_filename(source_file.filename)
+        target_filename = secure_filename(target_file.filename)
+        
+        source_path = os.path.join(UPLOAD_FOLDER, source_filename)
+        target_path = os.path.join(UPLOAD_FOLDER, target_filename)
+        
+        source_file.save(source_path)
+        target_file.save(target_path)
+        
+        # Process images
+        confidence_score, result_img = detect_image_in_image(source_path, target_path)
+        
+        # Save result
+        result_filename = 'match_' + source_filename
+        result_path = os.path.join(RESULT_FOLDER, result_filename)
+        cv2.imwrite(result_path, result_img)
+        
+        # Store results in session
+        session['match_result'] = result_filename
+        session['match_confidence'] = round(confidence_score * 100, 2)
+        
+        return redirect(url_for('match_result'))
+        
+    return redirect(url_for('index'))
+
+# Add route for showing match results
+@app.route('/match-result')
+def match_result():
+    if 'match_result' not in session:
         return redirect(url_for('index'))
+        
+    return render_template('match_result.html',
+                         result_file=session['match_result'],
+                         confidence=session['match_confidence'])
 
-    # Update the processed file in the session
-    session['processed_file'] = os.path.basename(result_path)
 
-    # Redirect to the result page
-    return redirect(url_for('result'))
 
 
 # Result page
@@ -473,26 +482,43 @@ def result():
 def video_feed():
     return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-
 @app.route('/video')
 def video():
     return render_template('video.html')
 
-def gen_frames():
+def gen_frames(class_name=None):  # Allow class_name to be optional
     cap = cv2.VideoCapture(0)  # Open the default camera
-    while cap.isOpened():
+    if not cap.isOpened():
+        print("Error: Unable to access the camera.")
+        return
+
+    while True:
         ret, frame = cap.read()
-        if not ret:
+        if not ret or frame is None:
+            print("Warning: Failed to grab frame.")
             break
 
         # Resize the frame for better performance
         frame = cv2.resize(frame, (640, 480))
 
         # Process the frame using the Mask R-CNN model
-        processed_frame = process_frame(frame)
+        processed_frame, _ = process_frame(frame, class_name)
+
+        # Ensure processed_frame is a valid NumPy array
+        if processed_frame is None or not isinstance(processed_frame, np.ndarray):
+            print("Error: Processed frame is invalid.")
+            continue
+
+        # Convert to uint8 if necessary
+        if processed_frame.dtype != np.uint8:
+            processed_frame = processed_frame.astype(np.uint8)
 
         # Encode the processed frame as JPEG
         ret, buffer = cv2.imencode('.jpg', processed_frame)
+        if not ret:
+            print("Error: Could not encode frame.")
+            continue
+
         frame = buffer.tobytes()
 
         # Yield the frame in byte format
@@ -500,6 +526,8 @@ def gen_frames():
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
     cap.release()
+
+
 
 
 # Admin Login
