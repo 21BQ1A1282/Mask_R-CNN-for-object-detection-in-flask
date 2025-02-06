@@ -24,14 +24,14 @@
     <!-- Main Content -->
     <div class="main-container">
         <!-- Detected Image -->
-        <div class="card">
-            <h2>Original File</h2>
-            <img src="{{ url_for('static', filename='uploads/' + original_file) }}" alt="Original File" style="width: 100%;">
-        </div>
-        <div class="card">
-            <h2>Processed File</h2>
-            <img src="{{ url_for('static', filename='results/' + processed_file) }}" alt="Processed File" style="width: 100%;">
-        </div>
+         <div class="card">
+    <h2>Original File</h2>
+    <img src="{{ url_for('static', filename='uploads/' + original_file) }}" alt="Original File" style="width: 100%;">
+</div>
+<div class="card">
+    <h2>Processed File</h2>
+    <img src="{{ url_for('static', filename='results/' + processed_file) }}" alt="Processed File" style="width: 100%;">
+</div>
 
         <!-- Add this section where you want the accuracy to appear -->
         <div class="accuracy-section">

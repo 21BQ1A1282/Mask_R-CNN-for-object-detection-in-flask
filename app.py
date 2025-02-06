@@ -350,6 +350,7 @@ def apply_detection():
         return redirect(request.url)
 
     file = request.files['file']
+    
     if file.filename == '':
         return redirect(request.url)
 
@@ -359,19 +360,22 @@ def apply_detection():
         file_path = os.path.join(UPLOAD_FOLDER, filename)
         file.save(file_path)
 
-        # Check if the file is an image or video
+        # Process the file based on its type
         if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
-            # Process the image
             result_path = detect_on_image(file_path)
         elif filename.lower().endswith(('.mp4', '.avi', '.mov')):
-            # Process the video
             result_path = detect_on_video(file_path)
         else:
-            return redirect(request.url)
+            return "Unsupported file format", 400
 
-        # Store the filenames in the session
+        # Save the result file
+        result_filename = 'detection_' + filename
+        result_path_final = os.path.join(RESULT_FOLDER, result_filename)
+        os.rename(result_path, result_path_final)  # Move or rename the result file
+
+        # Store filenames in session
         session['original_file'] = filename
-        session['processed_file'] = os.path.basename(result_path)
+        session['processed_file'] = result_filename
 
         # Redirect to the result page
         return redirect(url_for('result'))
@@ -383,32 +387,44 @@ def apply_detection():
 def filter_detection():
     if 'file' not in request.files:
         return redirect(request.url)
-    
+
     file = request.files['file']
     class_name = request.form['class_name']
-    
+
     if file.filename == '':
         return redirect(request.url)
-    
-    filename = secure_filename(file.filename)
-    file_path = os.path.join(UPLOAD_FOLDER, filename)
-    file.save(file_path)
-    
-    # Process image or video
-    if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
-        processed_path = detect_on_image(file_path, class_name)
-    elif filename.lower().endswith(('.mp4', '.avi', '.mov')):
-        processed_path = detect_on_video(file_path, class_name)
-    else:
-        return "Unsupported file format", 400
-    
-    processed_filename = os.path.basename(processed_path)
-    accuracy = session.get('accuracy', 0)
-    
-    return render_template('result.html', 
-                           original_file=filename, 
-                           processed_file=processed_filename, 
-                           accuracy=accuracy)
+
+    if file and allowed_file(file.filename):
+        # Save the uploaded file
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(file_path)
+
+        # Process the file based on its type
+        if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
+            result_path = detect_on_image(file_path, class_name)
+        elif filename.lower().endswith(('.mp4', '.avi', '.mov')):
+            result_path = detect_on_video(file_path, class_name)
+        else:
+            return "Unsupported file format", 400
+
+        # Save the result file
+        result_filename = 'filtered_' + filename
+        result_path_final = os.path.join(RESULT_FOLDER, result_filename)
+        os.rename(result_path, result_path_final)  # Move or rename the result file
+
+        # Store filenames and accuracy in session
+        session['original_file'] = filename
+        session['processed_file'] = result_filename
+        session['accuracy'] = session.get('accuracy', 0)  # Assuming accuracy is set elsewhere
+
+        # Render the result page
+        return render_template('result.html', 
+                              original_file=filename, 
+                              processed_file=result_filename, 
+                              accuracy=session['accuracy'])
+
+    return redirect(request.url)
 
 
 # Add new route for image matching
