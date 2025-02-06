@@ -24,27 +24,13 @@
     <!-- Main Content -->
     <div class="main-container">
         <!-- Detected Image -->
-         <div class="card">
+        <div class="card">
             <h2>Original File</h2>
-            {% if original_file.endswith(('.mp4', '.avi', '.mov')) %}
-    <video controls>
-        <source src="{{ url_for('static', filename='uploads/' + original_file) }}" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
-{% else %}
-    <img src="{{ url_for('static', filename='uploads/' + original_file) }}" alt="Original File" style="width: 100%;">
-{% endif %}
-         </div>
+            <img src="{{ url_for('static', filename='uploads/' + original_file) }}" alt="Original File" style="width: 100%;">
+        </div>
         <div class="card">
             <h2>Processed File</h2>
-            {% if processed_file.endswith(('.mp4', '.avi', '.mov')) %}
-    <video controls>
-        <source src="{{ url_for('static', filename='results/' + processed_file) }}" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
-{% else %}
-    <img src="{{ url_for('static', filename='results/' + processed_file) }}" alt="Processed File" style="width: 100%;">
-{% endif %}
+            <img src="{{ url_for('static', filename='results/' + processed_file) }}" alt="Processed File" style="width: 100%;">
         </div>
 
         <!-- Add this section where you want the accuracy to appear -->
