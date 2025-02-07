@@ -63,9 +63,6 @@
                     <input type="file" id="image" name="image" accept="image/*" required><br><br>
                     <input type="submit" value="Upload and Apply Detection">
                 </form>
-                <div id="detected-image-button" style="display: none;">
-                    <a href="{{ url_for('result') }}" class="button">View Detected Image</a>
-                </div>
             </div>
         </section>
 
@@ -79,10 +76,6 @@
                         <input type="file" name="file" accept=".png, .jpg, .jpeg, .mp4, .avi, .mov" required>
                         <input type="submit" value="Upload and Apply Detection"/>
                     </form>
-                    <!-- View Detected Image Button -->
-                    <div id="view-detected-button" style="display: none;">
-                        <a href="{{ url_for('result') }}" class="button">View Detected Image</a>
-                    </div>
                 </div>
             </div>
         </section>
