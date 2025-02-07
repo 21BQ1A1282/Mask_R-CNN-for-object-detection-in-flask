@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detection Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <a href="{{ url_for('home') }}" class="logo">Object Detection</a>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+    </nav>
+
+    <!-- Header -->
+    <header>
+        <h1>Object Detection Result</h1>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Results Cards -->
+        <div class="card">
+            <h2>Original File</h2>
+            {% if original_file.endswith(('.mp4', '.avi', '.mov')) %}
+                <video controls style="width: 100%; border-radius: 8px;">
+                    <source src="{{ url_for('static', filename='uploads/' + original_file) }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            {% else %}
+                <img src="{{ url_for('static', filename='uploads/' + original_file) }}" 
+                     alt="Original File" 
+                     style="width: 100%; border-radius: 8px;">
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h2>Processed Result</h2>
+            {% if processed_file.endswith(('.mp4', '.avi', '.mov')) %}
+                <video controls style="width: 100%; border-radius: 8px;">
+                    <source src="{{ url_for('static', filename='results/' + processed_file) }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            {% else %}
+                <img src="{{ url_for('static', filename='results/' + processed_file) }}" 
+                     alt="Processed Result" 
+                     style="width: 100%; border-radius: 8px;">
+            {% endif %}
+        </div>
+
+        <!-- Accuracy Section -->
+        <div class="accuracy-section">
+            <h2 style="color: #D32F2F;">
+                Detection Confidence: <span style="color: #333;">{{ accuracy }}%</span>
+            </h2>
+        </div>
+
+        <!-- Status Card -->
+        <div class="card">
+            {% if accuracy >= 50 %}
+                <div style="background-color: #4CAF50; color: white; padding: 15px; border-radius: 5px;">
+                    <h3 style="margin: 0; margin-bottom: 10px;">Successful Detection!</h3>
+                    <p style="margin: 0;">The model detected objects with high confidence.</p>
+                </div>
+            {% else %}
+                <div style="background-color: #FFA726; color: white; padding: 15px; border-radius: 5px;">
+                    <h3 style="margin: 0; margin-bottom: 10px;">Low Confidence Detection</h3>
+                    <p style="margin: 0;">The model had difficulty identifying clear objects.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Download Section -->
+        <div class="action-buttons">
+            <a href="{{ url_for('static', filename='results/' + processed_file) }}" download>
+                <button class="button">Download Result</button>
+            </a>
+        </div>
+        <div class="action-buttons">
+        <a href="{{ url_for('index') }}" class="button">New Detection</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Object Detect. All rights reserved.</p>
+    </footer>
+</body>
+</html>

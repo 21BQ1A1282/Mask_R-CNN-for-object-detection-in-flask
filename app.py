@@ -373,12 +373,13 @@ def apply_detection():
         result_path_final = os.path.join(RESULT_FOLDER, result_filename)
         os.rename(result_path, result_path_final)  # Move or rename the result file
 
-        # Store filenames in session
+        # Store filenames and accuracy in session
         session['original_file'] = filename
         session['processed_file'] = result_filename
+        session['accuracy'] = session.get('accuracy', 0)  # Assuming accuracy is set elsewhere
 
         # Redirect to the result page
-        return redirect(url_for('result'))
+        return redirect(url_for('detection_result'))
 
     return redirect(request.url)
 
@@ -418,11 +419,8 @@ def filter_detection():
         session['processed_file'] = result_filename
         session['accuracy'] = session.get('accuracy', 0)  # Assuming accuracy is set elsewhere
 
-        # Render the result page
-        return render_template('result.html', 
-                              original_file=filename, 
-                              processed_file=result_filename, 
-                              accuracy=session['accuracy'])
+        # Redirect to the result page
+        return redirect(url_for('detection_result'))
 
     return redirect(request.url)
 
@@ -481,17 +479,20 @@ def match_result():
 
 
 
-# Result page
-@app.route('/result')
-def result():
+
+@app.route('/detection-result')
+def detection_result():
     if 'original_file' not in session or 'processed_file' not in session:
         return redirect(url_for('index'))
+    
     # Retrieve accuracy from session, default to 0 if not found
     accuracy = session.get('accuracy', 0)
-    return render_template('result.html', 
+    
+    return render_template('detection_result.html', 
                          original_file=session['original_file'],
                          processed_file=session['processed_file'],
                          accuracy=accuracy)
+
 
 # Video feed route
 @app.route('/video_feed')
